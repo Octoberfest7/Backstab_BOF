@@ -11,6 +11,16 @@ A few changes were made to the code during the port of the original:
 
   2. There were several memory leaks in the original code that I found and resolved
 
+# To Compile:
+After initially trying to port this tool in Visual Studio, I ended up porting this on Linux using mingw-gcc.  I have not tried to compile for x86, or using VS (where there will be issues due to gcc/VS-only C issues).
+
+To compile using gcc:
+````
+x86_64-w64-mingw32-gcc -o backstab.x64.o -Os -c main.c -DBOF -D_UNICODE
+````
+
+<ins>Make sure that you have updated your mingw to the latest version! I had issues where my version had outdated header files, however the latest version's header files are correct.</ins>
+
 
 # Credits
   1. First and foremost, Yaxser and his cool tool: https://github.com/Yaxser/Backstab
