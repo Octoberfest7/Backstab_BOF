@@ -2,6 +2,8 @@
 This is a Beacon Object File implementation of Yaxser's Backstab for use with Cobalt Strike. 
 ![image](https://user-images.githubusercontent.com/91164728/157537763-684a4b2c-b677-40ea-af22-33e7fe5bb81d.png)
 
+Additional work would alter the BeaconPrint statements to utilize something neater like Trustedsec's method.
+
 # Changes
 A few changes were made to the code during the port of the original:
 
