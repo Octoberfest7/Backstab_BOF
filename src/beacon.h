@@ -21,10 +21,9 @@
 //MSVCRT
 WINBASEAPI void* __cdecl MSVCRT$calloc(size_t _Count, size_t _Size);
 WINBASEAPI int __cdecl MSVCRT$_snwprintf(wchar_t* __restrict _Dest, size_t _Count, const wchar_t* __restrict _Format, ...);
-WINBASEAPI int __cdecl MSVCRT$atoi(char const* _String); //???
+WINBASEAPI int __cdecl MSVCRT$atoi(char const* _String);
 WINBASEAPI void __cdecl MSVCRT$memset(void* dest, int c, size_t count);
 WINBASEAPI wchar_t* __cdecl MSVCRT$wcscpy(wchar_t* __restrict _Dest, const wchar_t* __restrict _Source);
-DECLSPEC_IMPORT PCHAR __cdecl MSVCRT$strchr(const char* haystack, int needle);
 WINBASEAPI wchar_t* __cdecl MSVCRT$wcscmp(const wchar_t* _lhs, const wchar_t* _rhs);
 WINBASEAPI long __cdecl MSVCRT$strtol(char const* _String, char** _EndPtr,int _Radix);
 WINBASEAPI size_t __cdecl MSVCRT$wcslen(const wchar_t* _Str);
@@ -38,7 +37,6 @@ WINBASEAPI void __cdecl MSVCRT$free(void *_Memory);
 #define _snwprintf MSVCRT$_snwprintf
 #define atoi MSVCRT$atoi
 #define memset MSVCRT$memset
-#define strchr MSVCRT$strchr
 #define wcscpy MSVCRT$wcscpy
 #define wcscmp MSVCRT$wcscmp
 #define strtol MSVCRT$strtol

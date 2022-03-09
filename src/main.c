@@ -125,7 +125,7 @@ int PrintInputError(DWORD dwErrorValue) {
 	return -1;
 }
 
-int go(IN PCHAR Buffer, IN ULONG Length) { //int argc, char* argv[]
+int go(IN PCHAR Buffer, IN ULONG Length) {
 
 	//Backstab vars
 	LPWSTR szProcessName = NULL;
